@@ -1,9 +1,17 @@
 from django.urls import path
-from .import views
+from . import views
 
-urlpatterns=[
-    path('',views.store,name='store'),
-    path('category/<slug:category_slug>/',views.store,name='products_by_category'),
-    path('category/<slug:category_slug>/<slug:product_slug>/',views.product_detail,name='products_detail'),
-    path('search/',views.search,name='search'),
+# ==============================================================================
+# Store URL Patterns
+# ==============================================================================
+
+urlpatterns = [
+    # Full catalog view
+    path('', views.store, name='store'),
+    # Products filtered by category slug
+    path('category/<slug:category_slug>/', views.store, name='products_by_category'),
+    # Single product detail view matching category and product slugs
+    path('category/<slug:category_slug>/<slug:product_slug>/', views.product_detail, name='products_detail'),
+    # Product search results view
+    path('search/', views.search, name='search'),
 ]

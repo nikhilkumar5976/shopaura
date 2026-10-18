@@ -1,10 +1,18 @@
 from django.shortcuts import render
 from store.models import Product
 
-def home(request):
-    products=Product.objects.all().filter(is_available=True)
+# ==============================================================================
+# Home View
+# ==============================================================================
 
-    context={
-        'products':products,
+def home(request):
+    """
+    Render the homepage of the ShopAura store.
+    Fetches all available products to display in the 'Popular Products' section.
+    """
+    products = Product.objects.all().filter(is_available=True)
+
+    context = {
+        'products': products,
     }
-    return render(request,'home.html',context)
+    return render(request, 'home.html', context)
