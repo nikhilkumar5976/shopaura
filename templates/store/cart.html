@@ -64,16 +64,21 @@
 							<div class="input-group input-spinner">
 								<!-- Decrement Quantity Button (removes item if quantity reaches 0) -->
 								<div class="input-group-prepend">
-									<a href="{% url 'remove_cart' cart_item.product.id %}" class="btn btn-light" type="button" id="button-minus">
+									<a href="{% url 'remove_cart' cart_item.product.id cart_item.id %}" class="btn btn-light" type="button" id="button-minus">
 										<i class="fa fa-minus"></i>
 									</a>
 								</div>
 								<input type="text" class="form-control" value="{{ cart_item.quantity }}" readonly>
 								<!-- Increment Quantity Button -->
 								<div class="input-group-append">
-									<a href="{% url 'add_cart' cart_item.product.id %}" class="btn btn-light" type="button" id="button-plus">
-										<i class="fa fa-plus"></i>
-									</a>
+									<form action="{% url 'add_cart' cart_item.product.id %}" method="POST">
+										{% csrf_token %}
+										{% for item in cart_item.variation.all %}
+											<input type="hidden" name="{{ item.variation_category | lower }}" value="{{ item.variation_value | capfirst }}">
+											
+										{% endfor %}
+											<button  class="btn btn-light" type="submit" id="button-plus"><i class="fa fa-plus"></i></button>
+									</form>
 								</div>
 							</div> <!-- input-group.// -->
 						</div> <!-- col.// -->
@@ -89,7 +94,7 @@
 
 					<!-- Action: Remove Line Item completely from cart -->
 					<td class="text-right"> 
-						<a href="{% url 'remove_cart_item' cart_item.product.id %}" class="btn btn-danger">Remove</a>
+						<a href="{% url 'remove_cart_item' cart_item.product.id cart_item.id %}" onclick="return confirm('Are You Sure You Want To Delete This Item?')" class="btn btn-danger">Remove</a>
 					</td>
 				</tr>
 				{% endfor %}
@@ -134,5 +139,4 @@
 </div> <!-- container .//  -->
 </section>
 <!-- ========================= SECTION CONTENT END// ========================= -->
-{% endblock %}
-
+{% endblock %

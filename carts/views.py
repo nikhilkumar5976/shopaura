@@ -62,19 +62,32 @@ def add_cart(request, product_id):
             cart_id=_cart_id(request)
         )
     cart.save()
+    is_cart_item_exists=Cartitem.objects.filter(product=product,cart=cart).exitsts()
+    if is_cart_item_exists:
+        cart_item=Cartitem.objects.filter(product=product,cart=cart)
 
-    # Check if this product is already in the cart
-    try:
-        cart_item = Cartitem.objects.get(product=product, cart=cart)
-        # Update variations if options were selected
-        if len(product_variation) > 0:
-            cart_item.variations.clear()
-            for item in product_variation:
-                cart_item.variations.add(item)
-        # Increment quantity
-        cart_item.quantity += 1
-        cart_item.save()
-    except Cartitem.DoesNotExist:
+        ex_var_list=[]
+        id=[]
+        for item in cart_item:
+            existing_variation=item.variations.all()
+            ex_var_list.append(list(existing_variation))
+            id.append(item.id)
+        print(ex_var_list)
+
+        if product_variation in ex_var_list:
+            index=ex_var_list.inde(product_variation)
+            item_id=id[index]
+            item=Cartitem.objects.get(product=product,id=item_id)
+            item.quantity+=1
+            item.save()
+
+        else:
+            item=Cartitem.objects.create(product=product,quantity=1,cart=cart)
+            if len(product_variation) > 0:
+                item.variations.clear()
+                item.variations.add(*product_variation)
+            item.save()
+    else:
         # Create new cart item entry
         cart_item = Cartitem.objects.create(
             product=product,
@@ -83,34 +96,35 @@ def add_cart(request, product_id):
         )
         if len(product_variation) > 0:
             cart_item.variations.clear()
-            for item in product_variation:
-                cart_item.variations.add(item)
+            cart_item.variations.add(*product_variation)
         cart_item.save()
         
     return redirect('cart')
 
 
-def remove_cart(request, product_id):
+def remove_cart(request, product_id,cart_item_id):
     """
     Decrement the quantity of a product in the cart.
     If the quantity drops to 1 and the user decrements again, the Cartitem is deleted.
     """
     cart = Cart.objects.get(cart_id=_cart_id(request))
     product = get_object_or_404(Product, id=product_id)
-    cart_item = Cartitem.objects.get(product=product, cart=cart)
+    try:
+        cart_item = Cartitem.objects.get(product=product, cart=cart,id=cart_item_id)
     
-    if cart_item.quantity > 1:
+        if cart_item.quantity > 1:
         # Decrement quantity by 1
-        cart_item.quantity -= 1
-        cart_item.save()
-    else:
+            cart_item.quantity -= 1
+            cart_item.save()
+        else:
         # If quantity would reach 0, remove the item completely
-        cart_item.delete()
-        
+            cart_item.delete()
+    except:
+        pass    
     return redirect('cart')
 
 
-def remove_cart_item(request, product_id):
+def remove_cart_item(request, product_id, cart_item_id):
     """
     Completely remove a product from the shopping cart regardless of its quantity.
     Triggered when the user clicks 'Remove' on the cart page.
