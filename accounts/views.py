@@ -1,3 +1,13 @@
+from email.message import EmailMessage
+import token
+from django.contrib.sites.shortcuts import get_current_site
+# from django.http import HttpResponse
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+
 from django.shortcuts import render, redirect
 from django.contrib import auth, messages
 
@@ -20,8 +30,21 @@ def register(request):
             user=Account.objects.create_user(first_name=first_name, last_name=last_name, email=email, username=username, password=password)
             user.phone_number=phone_number
             user.save()
-            messages.success(request, 'Your account has been successfully created.')
-            return redirect('register')  # Redirect to the same page or any other page after successful registration
+
+            #user activation
+            current_site = get_current_site(request)
+            mail_subject = 'Please activate your account'
+            message = render_to_string('accounts/account_verification_email.html', {
+                'user': user,
+                'domain': current_site,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+            #messages.success(request, 'THank you for registering with us. We have sent you a verification email to your email address. Please verify your email to activate your account.')
+            return redirect('/accounts/login/?command=verification&email=' + email)  # Redirect to the same page or any other page after successful registration
 
     else:
         form = RegistrationForm()
@@ -40,8 +63,8 @@ def signin(request):
         if user is not None:
             # User is authenticated, you can log them in
             auth.login(request, user)
-            #messages.success(request, 'You are now logged in.')
-            return redirect('home')  # Redirect to the home page or any other page after successful login
+            messages.success(request, 'You are now logged in.')
+            return redirect('dashboard')  # Redirect to the home page or any other page after successful login
         else:
             messages.error(request, 'Invalid email or password.')
             return redirect('signin')  # Redirect back to the login page on failure
@@ -52,3 +75,50 @@ def logout(request):
     auth.logout(request)
     messages.success(request, 'You have been logged out.')
     return redirect('signin')  # Redirect to the login page after logout
+
+def activate(request):
+    try:
+        uid = urlsafe_base64_decode(request.GET.get('uid')).decode()
+        user = Account.objects.get(pk=uid)
+
+    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Your account has been activated successfully.')
+        return redirect('signin')  # Redirect to the login page after successful activation
+    else:
+        messages.error(request, 'Activation link is invalid!')
+        return redirect('register')  # Redirect to the registration page on failure
+
+@login_required(login_url='signin')
+def dashboard(request):
+    return render(request, 'accounts/dashboard.html')
+
+def forgotPassword(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        if Account.objects.filter(email=email).exists():
+            user = Account.objects.get(email_exact=email)
+            current_site = get_current_site(request)
+            mail_subject = 'Reset your password'
+            message = render_to_string('accounts/reset_password_email.html', {
+                'user': user,
+                'domain': current_site,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+            messages.success(request, 'Password reset email has been sent to your email address.')
+            return redirect('signin')
+        else:
+            messages.error(request, 'Account does not exist!')
+            return redirect('forgotPassword')
+    return render(request, 'accounts/forgotPassword.html')
+
+def forgotPassword_validate(request):
+    return HttpResponse({'ok': True})
