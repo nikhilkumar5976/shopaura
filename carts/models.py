@@ -1,5 +1,6 @@
 from django.db import models
 from store.models import Product, Variation
+from accounts.models import Account
 
 # ==============================================================================
 # Shopping Cart Models
@@ -22,6 +23,7 @@ class Cartitem(models.Model):
     Represents an individual product item placed inside a Cart.
     Tracks selected product variations (color, size), quantity, and active state.
     """
+    user       = models.ForeignKey('accounts.Account', on_delete=models.CASCADE, null=True)
     product    = models.ForeignKey(Product, on_delete=models.CASCADE)
     variations = models.ManyToManyField(Variation, blank=True)
     cart       = models.ForeignKey(Cart, on_delete=models.CASCADE)
@@ -35,4 +37,4 @@ class Cartitem(models.Model):
         return self.product.price * self.quantity
     
     def __str__(self):
-        return str(self.product)
+        return str(self.product)

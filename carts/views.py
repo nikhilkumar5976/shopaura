@@ -3,6 +3,7 @@ from store.models import Product, Variation
 from .models import Cart, Cartitem
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 # ==============================================================================
 # Helper Functions
@@ -16,7 +17,8 @@ def _cart_id(request):
     cart = request.session.session_key
     if not cart:
         # Create a new session if one does not exist for the current visitor
-        cart = request.session.create()
+        request.session.create()
+        cart = request.session.session_key
     return cart
 
 
@@ -62,7 +64,7 @@ def add_cart(request, product_id):
             cart_id=_cart_id(request)
         )
     cart.save()
-    is_cart_item_exists=Cartitem.objects.filter(product=product,cart=cart).exitsts()
+    is_cart_item_exists=Cartitem.objects.filter(product=product,cart=cart).exists()
     if is_cart_item_exists:
         cart_item=Cartitem.objects.filter(product=product,cart=cart)
 
@@ -75,7 +77,7 @@ def add_cart(request, product_id):
         print(ex_var_list)
 
         if product_variation in ex_var_list:
-            index=ex_var_list.inde(product_variation)
+            index=ex_var_list.index(product_variation)
             item_id=id[index]
             item=Cartitem.objects.get(product=product,id=item_id)
             item.quantity+=1
@@ -169,3 +171,29 @@ def cart(request, total=0, quantity=0, cart_items=None):
     }
     return render(request, 'store/cart.html', context)
 
+@login_required(login_url='signin')
+def checkout(request, total=0, quantity=0, cart_items=None):
+    tax = 0
+    grand_total = 0
+    try:
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        cart_items = Cartitem.objects.filter(cart=cart, is_active=True)
+        # Accumulate total cost and item count
+        for cart_item in cart_items:
+            total += (cart_item.product.price * cart_item.quantity)
+            quantity += cart_item.quantity
+        # 2% estimated sales tax
+        tax = (2 * total) / 100
+        grand_total = total + tax
+    except ObjectDoesNotExist:
+        # Cart does not exist yet (session is empty)
+        pass
+
+    context = {
+        'total': total,
+        'quantity': quantity,
+        'cart_items': cart_items,
+        'tax': tax,
+        'grand_total': grand_total,
+    }
+    return render(request, 'store/checkout.html', context)

@@ -126,7 +126,7 @@
 					<img src="{% static './images/misc/payments.png' %}" height="26" alt="Payment Methods">
 				</p>
 				<!-- Proceed to Checkout or Continue Browsing -->
-				<a href="#" class="btn btn-primary btn-block">Checkout</a>
+				<a href="{% url 'checkout' %}" class="btn btn-primary btn-block">Checkout</a>
 				<a href="{% url 'store' %}" class="btn btn-light btn-block">Continue Shopping</a>
 			</div> <!-- card-body.// -->
 		</div> <!-- card.// -->
@@ -139,4 +139,4 @@
 </div> <!-- container .//  -->
 </section>
 <!-- ========================= SECTION CONTENT END// ========================= -->
-{% endblock %
+{% endblock %}
