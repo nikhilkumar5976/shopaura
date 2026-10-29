@@ -1,13 +1,49 @@
 import datetime
+import json
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+
 from orders.models import Order
 from .forms import OrderForm
 from carts.models import Cartitem
+from .models import Order, OrderProduct,Payment
 
 # Create your views here.
+def payments(request):
+    body=json.loads(request.body)
+    order=Order.objects.get(user=request.user,is_ordered=False,order_number=body['orderID'])
+
+    payment=Payment(
+        user=request.user,
+        payment_id=body['transID'],
+        payment_method=body['payment_method'],
+        amount_paid=order.order_total,
+        status=body['status'],
+    )
+    payment.save()
+
+    order.payment=payment
+    order.is_ordered=True
+    order.save()
+
+    cart_items=Cartitem.objects.filter(user=request.user)
+    for item in cart_items:
+        orderproduct=OrderProduct()
+        orderproduct.order_id=order.id
+        orderproduct.payment=payment
+        orderproduct.user_id=request.user_id
+        orderproduct.product_id=item.product_id
+        orderproduct.quantity=item.quantity
+        orderproduct.product_price=item.product.price
+        orderproduct.ordered=True
+        orderproduct.save()
+
+
+    return render(request, 'orders/payments.html')
+
+
 @login_required(login_url='signin')
-def place_order(request, total=0, quantity=0):
+def place_order(request , total=0, quantity=0):
     current_user = request.user
 
     cart_items = Cartitem.objects.filter(user=current_user)
@@ -48,10 +84,19 @@ def place_order(request, total=0, quantity=0):
             mth = int(datetime.date.today().strftime('%m'))
             date = datetime.date(yr, mth, dt)
             current_date = date.strftime("%Y%m%d")
-            order_number = current_date + str(data.id)
+            order_number = current_date + str(data.id)  
             data.order_number = order_number
             data.save()
-            return redirect('checkout')
+
+            order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
+            context = {
+                'order': order,
+                'cart_items': cart_items,
+                'total': total,
+                'tax': tax,
+                'grand_total': grand_total,
+            }
+            return render(request, 'orders/payments.html', context)
         else:
             return redirect('checkout')
     else:
