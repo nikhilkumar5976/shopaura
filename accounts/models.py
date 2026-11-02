@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.db.models.signals import post_save
 
 # ==============================================================================
 # Custom User Manager
@@ -96,3 +97,28 @@ class Account(AbstractBaseUser):
     def has_module_perms(self, app_label):
         """Check if user has permissions to view the app/module."""
         return True
+
+
+class UserProfile(models.Model):
+    user=models.OneToOneField(Account,on_delete=models.CASCADE)
+    address_line_1=models.CharField(blank=True,max_length=100)
+    address_line_2=models.CharField(blank=True,max_length=100)
+    profile_picture=models.ImageField(blank=True,upload_to='userprofile')
+    city=models.CharField(blank=True,max_length=20)
+    state=models.CharField(blank=True,max_length=20)
+    country=models.CharField(blank=True,max_length=20)
+
+    def __str__(self):
+        return self.user.first_name 
+
+
+    def full_address(self):
+        """Return the user's full address as a single string."""
+        return f"{self.address_line_1} {self.address_line_2}"
+
+
+def post_save_create_profile_receiver(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.get_or_create(user=instance)
+
+post_save.connect(post_save_create_profile_receiver, sender=Account)
