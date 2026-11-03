@@ -1,10 +1,10 @@
-<aside class="col-md-3">
+<aside class="col-md-3 mb-4 mb-md-0">
   <!--   SIDEBAR   -->
   <ul class="list-group">
-    <a class="list-group-item {% if '/accounts/' == request.path %}active{% endif %}" href="{% url 'dashboard' %}"> Dashboard </a>
-    <a class="list-group-item {% if '/my_orders/' in request.path %}active{% endif %}" href="{% url 'my_orders' %}"> My Orders </a>
-    <a class="list-group-item {% if '/edit_profile/' in request.path %}active{% endif %}" href="{% url 'edit_profile' %}"> Edit Profile </a>
-    <a class="list-group-item {% if '/change_password/' in request.path %}active{% endif %}" href="{% url 'change_password' %}"> Change Password </a>
+    <a class="list-group-item {% if '/accounts/' == request.path or '/accounts/dashboard' in request.path %}active{% endif %}" href="{% url 'dashboard' %}"> <i class="fa fa-tachometer mr-2"></i> Dashboard </a>
+    <a class="list-group-item {% if '/my_orders/' in request.path or '/order_detail/' in request.path %}active{% endif %}" href="{% url 'my_orders' %}"> <i class="fa fa-shopping-bag mr-2"></i> My Orders </a>
+    <a class="list-group-item {% if '/edit_profile/' in request.path %}active{% endif %}" href="{% url 'edit_profile' %}"> <i class="fa fa-user mr-2"></i> Edit Profile </a>
+    <a class="list-group-item {% if '/change_password/' in request.path %}active{% endif %}" href="{% url 'change_password' %}"> <i class="fa fa-lock mr-2"></i> Change Password </a>
   </ul>
   <br>
   <a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Log out</span> </a>

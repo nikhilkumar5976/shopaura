@@ -2,52 +2,44 @@
 
 {% block content %}
 
+<section class="section-conten padding-y d-flex align-items-center justify-content-center" style="min-height:75vh">
 
-
-
-<!-- ========================= SECTION CONTENT ========================= -->
-<section class="section-conten padding-y" style="min-height:84vh">
-
-<!-- ============================ COMPONENT LOGIN   ================================= -->
- {% if request.GET.command == 'verification' %}
- <div class="container mx-auto alert alert-info text-center" role="alert" style="max-width: 1000px; margin-top:100px;">
+{% if request.GET.command == 'verification' %}
+<div class="container mx-auto alert alert-info text-center my-4" role="alert" style="max-width: 600px;">
     Thank you for signing up! Please check your email to verify your account [{{request.GET.email}}].
-<br><br>
-Already verified? <a href="{% url 'signin' %}">Sign in</a> 
+    <br><br>
+    Already verified? <a href="{% url 'signin' %}" class="font-weight-bold">Sign in</a> 
 </div>
- {% else %}
+{% else %}
 
-</div>	<div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
-      <div class="card-body">
-      <h4 class="card-title mb-4">Sign in</h4>
+<div class="container">
+    <div class="card mx-auto my-3 my-md-4" style="max-width: 400px; width: 100%;">
+      <div class="card-body p-4">
+      <h4 class="card-title mb-4 text-center">Sign in</h4>
 	  {% include 'includes/alerts.html' %}
       <form action="{% url 'signin' %}" method="POST">
           {% csrf_token %}
           <div class="form-group">
-			 <input type="email" class="form-control" placeholder="Email Address" name="email">
-          </div> <!-- form-group// -->
+			 <input type="email" class="form-control" placeholder="Email Address" name="email" required>
+          </div>
           <div class="form-group">
-			<input type="password" class="form-control" placeholder="Password" name="password">
-          </div> <!-- form-group// -->
+			<input type="password" class="form-control" placeholder="Password" name="password" required>
+          </div>
           
           <div class="form-group">
-          	<a href="{% url 'forgotPassword' %}" class="float-right">Forgot password?</a> 
-           
-          </div> <!-- form-group form-check .// -->
-          <div class="form-group">
-              <button type="submit" class="btn btn-primary btn-block"> Login  </button>
-          </div> <!-- form-group// -->    
+          	<a href="{% url 'forgotPassword' %}" class="float-right small">Forgot password?</a> 
+          </div>
+          <div class="form-group mb-0">
+              <button type="submit" class="btn btn-primary btn-block"> Login </button>
+          </div>
       </form>
-      </div> <!-- card-body.// -->
-    </div> <!-- card .// -->
+      </div>
+    </div>
 
-     <p class="text-center mt-4">Don't have account? <a href="{% url 'register' %}">Sign up</a></p>
-     <br><br>
-<!-- ============================ COMPONENT LOGIN  END.// ================================= -->
+    <p class="text-center mt-3 mb-4">Don't have an account? <a href="{% url 'register' %}" class="font-weight-bold">Sign up</a></p>
+</div>
 
 {% endif %}
 </section>
-<!-- ========================= SECTION CONTENT END// ========================= -->
-
 
 {% endblock %}

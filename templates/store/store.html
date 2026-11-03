@@ -26,8 +26,15 @@
 
 <div class="row">
 
+	<!-- Mobile Filter Toggle Button -->
+	<div class="col-12 d-md-none mb-3">
+		<button class="btn btn-outline-primary btn-block" type="button" data-toggle="collapse" data-target="#storeSidebarFilters" aria-expanded="false" aria-controls="storeSidebarFilters">
+			<i class="fa fa-filter mr-1"></i> Filter Products
+		</button>
+	</div>
+
 	<!-- Left Sidebar: Category & Attribute Filters -->
-	<aside class="col-md-3">
+	<aside class="col-md-3 collapse d-md-block mb-3 mb-md-0" id="storeSidebarFilters">
 		<div class="card">
 			<!-- Category Filter Group -->
 			<article class="filter-group">
@@ -138,7 +145,7 @@
 		<div class="row">
 			{% if products %}
 				{% for product in products %}
-				<div class="col-md-4">
+				<div class="col-6 col-sm-6 col-md-6 col-lg-4">
 					<figure class="card card-product-grid">
 						<div class="img-wrap"> 
 							<a href="{{ product.get_url }}"><img src="{{ product.images.url }}" alt="{{ product.product_name }}"></a>

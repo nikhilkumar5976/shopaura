@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
 <section class="section-conten padding-y bg">
@@ -13,14 +12,13 @@
 		<article class="card">
 		<header class="card-header">
 			<strong class="d-inline-block mr-3">Edit your profile</strong>
-
 		</header>
 		<div class="card-body">
-			<div class="text-right">
+			<div class="text-center text-md-right mb-3">
 				{% if userprofile.profile_picture %}
-				<img src="{{userprofile.profile_picture.url}}" alt="Profile Picture" width="100" style="border-radius:50px;">
+				<img src="{{userprofile.profile_picture.url}}" alt="Profile Picture" width="90" height="90" style="border-radius:50%; object-fit: cover; border: 3px solid #0f0a87;">
 				{% else %}
-				<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbZ0WFrgDfCi0quSSO2usQ032wzQ1AjvHpBJE3m4e15g&s=10" alt="Profile Picture" width="100" style="border-radius:50px;">
+				<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbZ0WFrgDfCi0quSSO2usQ032wzQ1AjvHpBJE3m4e15g&s=10" alt="Profile Picture" width="90" height="90" style="border-radius:50%; object-fit: cover;">
 				{% endif %}
 			</div>
 			<div class="row">
@@ -28,21 +26,21 @@
 				<form action="{% url 'edit_profile' %}" method="POST" enctype="multipart/form-data">
 					{% csrf_token %}
 					<div class="form-row">
-						<div class="form-group col-md-6">
+						<div class="form-group col-12 col-sm-6">
 							<label>First Name</label>
 							{{user_form.first_name}}
 						</div>
-						<div class="form-group col-md-6">
+						<div class="form-group col-12 col-sm-6">
 							<label>Last Name</label>
 							{{user_form.last_name}}
 						</div>
 					</div>
 					<div class="form-row">
-						<div class="form-group col-md-6">
+						<div class="form-group col-12 col-sm-6">
 							<label>Phone Number</label>
 							{{user_form.phone_number}}
 						</div>
-						<div class="form-group col-md-6">
+						<div class="form-group col-12 col-sm-6">
 							<label>Profile Picture</label>
 							{{profile_form.profile_picture}}
 						</div>
@@ -56,31 +54,30 @@
 						{{profile_form.address_line_2}}
 					</div>
 					<div class="form-row">
-						<div class="form-group col-md-4">
+						<div class="form-group col-12 col-sm-4">
 							<label>City</label>
 							{{profile_form.city}}
 						</div>
-						<div class="form-group col-md-4">
+						<div class="form-group col-12 col-sm-4">
 							<label>State</label>
 							{{profile_form.state}}
 						</div>
-						<div class="form-group col-md-4">
+						<div class="form-group col-12 col-sm-4">
 							<label>Country</label>
 							{{profile_form.country}}
 						</div>
 					</div>
-					<input type="submit" value="Save" class="btn btn-primary">
+					<input type="submit" value="Save Changes" class="btn btn-primary px-4">
 				</form>
 			</div>
 
-			</div> <!-- row.// -->
-		</div> <!-- card-body .// -->
+			</div>
+		</div>
 
-		</article> <!-- order-group.// -->
+		</article>
 	</main>
-</div> <!-- row.// -->
 </div>
-
+</div>
 
 </section>
 
