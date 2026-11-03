@@ -1,6 +1,6 @@
 <!-- {% load static %} -->
 <header class="section-header">
-	<nav class="navbar p-md-0 navbar-expand-sm navbar-light border-bottom">
+	<nav class="navbar navbar-top-bar p-md-0 navbar-expand-sm border-bottom">
 		<div class="container">
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTop4" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
@@ -14,9 +14,9 @@
 						<a href="#" class="nav-link"> USD </a>
 					</li>
 				</ul>
-				<ul class="navbar-nav">
-					<li><a href="#" class="nav-link"> <i class="fa fa-envelope"></i> Email </a></li>
-					<li><a href="#" class="nav-link"> <i class="fa fa-phone"></i> Call us </a></li>
+				<ul class="navbar-nav align-items-center">
+					<li><a href="mailto:nikhilkhatri360@gmail.com" class="nav-link"> <i class="fa fa-envelope"></i> nikhilkhatri360@gmail.com </a></li>
+					<li><a href="tel:+917900781098" class="nav-link"> <i class="fa fa-phone"></i> +91 7900781098 </a></li>
 				</ul> <!-- list-inline //  -->
 			</div> <!-- navbar-collapse .// -->
 		</div> <!-- container //  -->
@@ -62,7 +62,7 @@
 					</form> <!-- search-wrap .end// -->
 				</div> <!-- col.// -->
 				<div class="col-lg-3 col-sm-6 col-8 order-2 order-lg-3">
-					<div class="d-flex justify-content-end mb-3 mb-lg-0">
+					<div class="d-flex justify-content-end mb-3 mb-lg-0 align-items-center">
 						{% if user.id is None %}
 						<div class="widget-header">
 							<small class="title text-muted">Welcome guest!</small>
@@ -84,6 +84,13 @@
 							<div class="icon icon-sm rounded-circle border"><i class="fa fa-shopping-cart"></i></div>
 							<span class="badge badge-pill badge-danger notify">{{ cart_count }}</span>
 						</a>
+						<div class="widget-header pl-3 ml-2">
+							<button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+								<i class="fa fa-moon-o theme-icon-moon"></i>
+								<i class="fa fa-sun-o theme-icon-sun"></i>
+								<span class="theme-text d-none d-md-inline">Dark</span>
+							</button>
+						</div>
 					</div> <!-- widgets-wrap.// -->
 				</div> <!-- col.// -->
 			</div> <!-- row.// -->
