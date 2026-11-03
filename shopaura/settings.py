@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
+import shutil
 from pathlib import Path
 from decouple import config
 
@@ -83,10 +85,23 @@ AUTH_USER_MODEL='accounts.Account'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+if os.environ.get('VERCEL'):
+    # On Vercel serverless environment, use writable /tmp location
+    TMP_DB = Path('/tmp/db.sqlite3')
+    ORIG_DB = BASE_DIR / 'db.sqlite3'
+    if ORIG_DB.exists() and not TMP_DB.exists():
+        try:
+            shutil.copy2(ORIG_DB, TMP_DB)
+        except Exception:
+            pass
+    DB_PATH = TMP_DB if TMP_DB.exists() else ORIG_DB
+else:
+    DB_PATH = BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_PATH,
     }
 }
 

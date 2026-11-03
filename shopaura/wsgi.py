@@ -1,18 +1,24 @@
 """
 WSGI config for shopaura project.
 
-It exposes the WSGI callable as a module-level variable named ``application``.
+It exposes the WSGI callable as a module-level variable named ``application`` and ``app``.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/6.1/howto/deployment/wsgi/
 """
 
 import os
+import sys
+from pathlib import Path
 
-from django.core.wsgi import get_wsgi_application
+# Add project root directory to sys.path for Vercel serverless environment
+BASE_DIR = Path(__file__).resolve().parent.parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shopaura.settings')
 
+from django.core.wsgi import get_wsgi_application
+
 application = get_wsgi_application()
 app = application
-
