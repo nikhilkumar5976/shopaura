@@ -13,10 +13,15 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+import logging
+import smtplib
 
 from carts.views import _cart_id
 from carts.models import Cart, Cartitem
-import requests,token
+import requests
+
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
@@ -46,9 +51,13 @@ def register(request):
             })
             to_email = email
             send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
-            #messages.success(request, 'THank you for registering with us. We have sent you a verification email to your email address. Please verify your email to activate your account.')
-            return redirect('/accounts/login/?command=verification&email=' + email)  # Redirect to the same page or any other page after successful registration
+            try:
+                send_email.send(fail_silently=False)
+                #messages.success(request, 'Thank you for registering with us. We have sent you a verification email to your email address.')
+            except (smtplib.SMTPException, OSError, TimeoutError) as error:
+                logger.exception('Unable to send account verification email to %s', to_email)
+                messages.error(request, 'Your account was created, but the verification email could not be sent. Please try again later.')
+            return redirect('/accounts/login/?command=verification&email=' + email)
 
     else:
         form = RegistrationForm()
@@ -122,9 +131,9 @@ def logout(request):
     messages.success(request, 'You have been logged out.')
     return redirect('signin')  # Redirect to the login page after logout
 
-def activate(request):
+def activate(request, uidb64, token):
     try:
-        uid = urlsafe_base64_decode(request.GET.get('uid')).decode()
+        uid = urlsafe_base64_decode(uidb64).decode()
         user = Account.objects.get(pk=uid)
 
     except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
@@ -166,8 +175,12 @@ def forgotPassword(request):
             })
             to_email = email
             send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
-            messages.success(request, 'Password reset email has been sent to your email address.')
+            try:
+                send_email.send(fail_silently=False)
+                messages.success(request, 'Password reset email has been sent to your email address.')
+            except (smtplib.SMTPException, OSError, TimeoutError) as error:
+                logger.exception('Unable to send password reset email to %s', to_email)
+                messages.error(request, 'The password reset email could not be sent. Please try again later.')
             return redirect('signin')
         else:
             messages.error(request, 'Account does not exist!')
